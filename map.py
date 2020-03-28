@@ -1,37 +1,38 @@
+"""Draw a map of Covid-19 cases in New York counties"""
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 
 
 CENTER_OF_NY = [-76, 42]
 ZOOM_SCALE = 1
+WIDTH=1e6
+HEIGHT=1e6
 
-bbox = [
-    CENTER_OF_NY[0]-ZOOM_SCALE, CENTER_OF_NY[0]+ZOOM_SCALE,
-    CENTER_OF_NY[1]-ZOOM_SCALE, CENTER_OF_NY[1]+ZOOM_SCALE
-]
 
-# Define the projection, scale, the corners of the map, and the resolution.
-MAP = Basemap(
-    lon_0=CENTER_OF_NY[0], lat_0=CENTER_OF_NY[1], width=1000000,
-    height=1000000, projection='tmerc'
-)
+def draw_map():
+    """Draw the map!"""
+    # Define the projection, scale, the corners of the map, and the resolution.
+    base_map = Basemap(
+        lon_0=CENTER_OF_NY[0], lat_0=CENTER_OF_NY[1], width=WIDTH,
+        height=HEIGHT, projection='tmerc'
+    )
+    base_map.readshapefile(
+        'cb_2018/cb_2018_us_county_500k', 'states', drawbounds=True,
+        linewidth=0.45,
+        color='gray'
+    )
+    base_map.readshapefile(
+        'cb_2018/cb_2018_us_state_500k', 'states', drawbounds=True,
+        linewidth=0.9,
+        color='gray'
+    )
+    base_map.drawmapboundary()
+    plt.show()
 
-# https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
-MAP.readshapefile(
-    'cb_2018/cb_2018_us_county_500k', 'states', drawbounds=True, linewidth=0.45,
-    color='gray'
-)
-MAP.readshapefile(
-    'cb_2018/cb_2018_us_state_500k', 'states', drawbounds=True, linewidth=0.9,
-    color='gray'
-)
 
-# Then add element: draw coast line, map boundary, and fill continents:
-# m.drawcoastlines()
-MAP.drawmapboundary()
-# m.fillcontinents()
+def main():
+    draw_map()
 
-# You can add rivers as well
-# m.drawrivers(color='#0000ff')
 
-plt.show()
+if __name__ == '__main__':
+    main()
