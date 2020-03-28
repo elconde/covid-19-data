@@ -18,11 +18,11 @@ MAP = Basemap(
 
 # https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
 MAP.readshapefile(
-    'cb_2018_us_county_500k', 'states', drawbounds=True, linewidth=0.45,
+    'cb_2018/cb_2018_us_county_500k', 'states', drawbounds=True, linewidth=0.45,
     color='gray'
 )
 MAP.readshapefile(
-    'cb_2018_us_state_500k', 'states', drawbounds=True, linewidth=0.9,
+    'cb_2018/cb_2018_us_state_500k', 'states', drawbounds=True, linewidth=0.9,
     color='gray'
 )
 
