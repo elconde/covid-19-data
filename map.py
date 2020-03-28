@@ -21,7 +21,13 @@ def get_county_coordinates():
 
 def get_number_of_cases(fips, data_frame):
     """How many cases are in this county?"""
-    data_frame_fips = data_frame[data_frame['fips'] == fips]
+    if not fips:
+        # New York
+        data_frame_fips = data_frame[data_frame['county'] == 'New York City']
+    else:
+        data_frame_fips = data_frame[data_frame['fips'] == fips]
+    if data_frame_fips.empty:
+        return 0
     return data_frame_fips.loc[(data_frame_fips['date'].idxmax()), 'cases']
 
 
@@ -49,7 +55,8 @@ def draw_map():
     for coord in get_county_coordinates():
         lons.append(float(coord['lon']))
         lats.append(float(coord['lat']))
-        cases.append(get_number_of_cases(int(coord['fips']), data_frame))
+        fips = int(coord['fips'])
+        cases.append(get_number_of_cases(fips, data_frame))
     base_map.drawmapboundary()
     base_map.scatter(
         lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
