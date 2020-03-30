@@ -1,9 +1,17 @@
-"""Draw a map of Covid-19 cases in New York counties
-> conda install --name covid-19-data python=3.7 pandas matplotlib Pillow basemap
+"""Draw an animated gif of COVID-19 cases throughout time in the United
+States.
+> conda install --name covid-19-data python=3.7 pandas matplotlib \
+  Pillow basemap
 """
 import sys
 import logging
 import os
+from PIL import Image
+import glob
+import csv
+import matplotlib.pyplot
+import pandas
+import datetime
 
 LOGGER = logging.getLogger('map')
 logging.basicConfig(
@@ -21,7 +29,11 @@ def set_proj_lib_env_variable():
     if os.name == 'posix':
         # This hack isn't required in Linux
         return
-    pkgs_dir = os.path.normpath(os.path.join(os.path.dirname(sys.executable), os.pardir, os.pardir, 'pkgs'))
+    pkgs_dir = os.path.normpath(
+        os.path.join(
+            os.path.dirname(sys.executable), os.pardir, os.pardir, 'pkgs'
+        )
+    )
     for entry in os.listdir(pkgs_dir):
         if not entry.startswith('proj4'):
             continue
@@ -33,21 +45,15 @@ def set_proj_lib_env_variable():
             os.environ['PROJ_LIB'] = candidate
             return
 
-from PIL import Image
-import glob
-import csv
+
 set_proj_lib_env_variable()
 import mpl_toolkits.basemap
-import matplotlib.pyplot
-import pandas
-import datetime
 
 
 START_DATE = datetime.date(2020, 3, 1)
-CENTER_OF_NY = [-76, 42]
-ZOOM_SCALE = 1
-WIDTH = 1e6
-HEIGHT = 1e6
+CENTER = [39.828175, -98.5795]
+WIDTH = 2e6
+HEIGHT = 2e6
 CSV_FILE_NAME = os.path.join(os.path.dirname(__file__), 'us-counties.csv')
 
 
@@ -76,7 +82,7 @@ def draw_map():
     """Draw the map!"""
     # Define the projection, scale, the corners of the map, and the resolution.
     base_map = mpl_toolkits.basemap.Basemap(
-        lon_0=CENTER_OF_NY[0], lat_0=CENTER_OF_NY[1], width=WIDTH,
+        lat_0=CENTER[0], lon_0=CENTER[1], width=WIDTH,
         height=HEIGHT, projection='tmerc'
     )
     base_map.readshapefile(
@@ -98,12 +104,12 @@ def draw_map():
         lons = []
         lats = []
         cases = []
-        file_name = 'ny{}.png'.format(date.strftime('%Y%m%d'))
+        file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
         for coord in get_county_coordinates():
-            lons.append(float(coord['lon']))
-            lats.append(float(coord['lat']))
-            fips = int(coord['fips'])
+            lons.append(float(coord['Longitude']))
+            lats.append(float(coord['Latitude']))
+            fips = int(coord['FIPS'])
             cases.append(
                 get_number_of_cases(fips, data_frame, date)
             )
