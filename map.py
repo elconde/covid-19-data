@@ -1,4 +1,6 @@
 """Draw a map of Covid-19 cases in New York counties"""
+from PIL import Image
+import glob
 import csv
 import mpl_toolkits.basemap
 import matplotlib.pyplot
@@ -57,7 +59,9 @@ def draw_map():
     lats = []
     cases = []
     data_frame = get_data_frame()
-    for i in range(10):
+    for i in range(29):
+        file_name = 'ny{:03}.png'.format(i)
+        print('Generating map '+file_name)
         for coord in get_county_coordinates():
             lons.append(float(coord['lon']))
             lats.append(float(coord['lat']))
@@ -83,8 +87,25 @@ def get_data_frame():
     return data_frame
 
 
+def create_gif():
+    """Convert the PNG files to a GIF"""
+    # Create the frames
+    frames = []
+    images = sorted(glob.glob("*.png"))
+    for image in images:
+        new_frame = Image.open(image)
+        frames.append(new_frame)
+
+    # Save into a GIF file that loops forever
+    frames[0].save(
+        'png_to_gif.gif', format='GIF', append_images=frames[1:],
+        save_all=True, duration=300, loop=0
+    )
+
+
 def main():
     draw_map()
+    create_gif()
 
 
 if __name__ == '__main__':
