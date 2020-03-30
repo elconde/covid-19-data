@@ -5,8 +5,10 @@ import sys
 import logging
 import os
 
-LOGGER = logging.getLogger()
-logging.basicConfig(level=logging.NOTSET, format="%(asctime)s %(name)s %(message)s")
+LOGGER = logging.getLogger('map')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(name)s %(message)s"
+)
 
 
 def set_proj_lib_env_variable():
@@ -97,7 +99,7 @@ def draw_map():
         lats = []
         cases = []
         file_name = 'ny{}.png'.format(date.strftime('%Y%m%d'))
-        print('Generating map '+file_name)
+        LOGGER.info('Generating map %s', file_name)
         for coord in get_county_coordinates():
             lons.append(float(coord['lon']))
             lats.append(float(coord['lat']))
