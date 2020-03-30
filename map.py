@@ -55,26 +55,33 @@ def draw_map():
         linewidth=0.9,
         color='gray'
     )
-    lons = []
-    lats = []
-    cases = []
     data_frame = get_data_frame()
+    old_scatter = None
+    old_text = None
     for i in range(29):
+        lons = []
+        lats = []
+        cases = []
         file_name = 'ny{:03}.png'.format(i)
         print('Generating map '+file_name)
+        date = START_DATE + datetime.timedelta(days=i)
         for coord in get_county_coordinates():
             lons.append(float(coord['lon']))
             lats.append(float(coord['lat']))
             fips = int(coord['fips'])
-            date = START_DATE + datetime.timedelta(days=i)
             cases.append(
                 get_number_of_cases(fips, data_frame, date)
             )
-            matplotlib.pyplot.text(
-                0, 0, date, horizontalalignment='center', verticalalignment='center',
-            )
+        if old_text:
+            old_text.remove()
+        old_text = matplotlib.pyplot.text(
+            0, 0, date, horizontalalignment='center',
+            verticalalignment='center'
+        )
         base_map.drawmapboundary()
-        base_map.scatter(
+        if old_scatter:
+            old_scatter.remove()
+        old_scatter = base_map.scatter(
             lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
         )
         matplotlib.pyplot.savefig(file_name)
