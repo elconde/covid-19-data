@@ -58,13 +58,14 @@ def draw_map():
     data_frame = get_data_frame()
     old_scatter = None
     old_text = None
-    for i in range(29):
+    max_date = data_frame['date'].max()
+    date = START_DATE
+    while date <= max_date:
         lons = []
         lats = []
         cases = []
-        file_name = 'ny{:03}.png'.format(i)
+        file_name = 'ny{}.png'.format(date.strftime('%Y%m%d'))
         print('Generating map '+file_name)
-        date = START_DATE + datetime.timedelta(days=i)
         for coord in get_county_coordinates():
             lons.append(float(coord['lon']))
             lats.append(float(coord['lat']))
@@ -85,6 +86,7 @@ def draw_map():
             lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
         )
         matplotlib.pyplot.savefig(file_name)
+        date += datetime.timedelta(days=1)
 
 
 def get_data_frame():
