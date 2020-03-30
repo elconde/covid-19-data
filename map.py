@@ -1,10 +1,39 @@
-"""Draw a map of Covid-19 cases in New York counties"""
+"""Draw a map of Covid-19 cases in New York counties
+> conda install --name covid-19-data python=3.7 pandas matplotlib Pillow basemap
+"""
+import sys
+import logging
+import os
+
+LOGGER = logging.getLogger()
+logging.basicConfig(level=logging.NOTSET, format="%(asctime)s %(name)s %(message)s")
+
+
+def set_proj_lib_env_variable():
+    """Set the PROJ_LIB environment variable or mpl_toolkts.basemap
+    won't load.
+    https://groups.google.com/forum/#!topic/pyart-users/Q2Zj7AFTv_w
+    https://stackoverflow.com/questions/52295117/basemap-import-error-in-pycharm-keyerror-proj-lib
+    https://github.com/matplotlib/basemap/issues/419
+    """
+    pkgs_dir = os.path.normpath(os.path.join(os.path.dirname(sys.executable), os.pardir, os.pardir, 'pkgs'))
+    for entry in os.listdir(pkgs_dir):
+        if not entry.startswith('proj4'):
+            continue
+        candidate = os.path.join(pkgs_dir, entry, 'Library', 'share')
+        if not os.path.isdir(candidate):
+            continue
+        if os.path.isfile(os.path.join(candidate, 'epsg')):
+            LOGGER.debug('Setting PROJ_LIB to %s', candidate)
+            os.environ['PROJ_LIB'] = candidate
+            return
+
 from PIL import Image
 import glob
 import csv
+set_proj_lib_env_variable()
 import mpl_toolkits.basemap
 import matplotlib.pyplot
-import os
 import pandas
 import datetime
 
