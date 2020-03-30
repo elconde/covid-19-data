@@ -4,8 +4,10 @@ import mpl_toolkits.basemap
 import matplotlib.pyplot
 import os
 import pandas
+import datetime
 
 
+START_DATE = datetime.date(2020, 3, 1)
 CENTER_OF_NY = [-76, 42]
 ZOOM_SCALE = 1
 WIDTH = 1e6
@@ -19,16 +21,17 @@ def get_county_coordinates():
         return [row for row in csv.DictReader(coord_file)]
 
 
-def get_number_of_cases(fips, data_frame):
-    """How many cases are in this county?"""
+def get_number_of_cases(fips, data_frame, date):
+    """How many cases are in this county on this date?"""
     if not fips:
         # New York
         data_frame_fips = data_frame[data_frame['county'] == 'New York City']
     else:
         data_frame_fips = data_frame[data_frame['fips'] == fips]
-    if data_frame_fips.empty:
+    data_frame_fips_date = data_frame_fips[data_frame_fips['date'] == date]
+    if data_frame_fips_date.empty:
         return 0
-    return data_frame_fips.loc[(data_frame_fips['date'].idxmax()), 'cases']
+    return data_frame_fips_date.loc[0, 'cases']
 
 
 def draw_map():
@@ -52,16 +55,21 @@ def draw_map():
     lats = []
     cases = []
     data_frame = get_data_frame()
-    for coord in get_county_coordinates():
-        lons.append(float(coord['lon']))
-        lats.append(float(coord['lat']))
-        fips = int(coord['fips'])
-        cases.append(get_number_of_cases(fips, data_frame))
-    base_map.drawmapboundary()
-    base_map.scatter(
-        lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
-    )
-    matplotlib.pyplot.show()
+    for i in range(10):
+        for coord in get_county_coordinates():
+            lons.append(float(coord['lon']))
+            lats.append(float(coord['lat']))
+            fips = int(coord['fips'])
+            cases.append(
+                get_number_of_cases(
+                    fips, data_frame, START_DATE+datetime.timedelta(days=i)
+                )
+            )
+        base_map.drawmapboundary()
+        base_map.scatter(
+            lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
+        )
+        matplotlib.pyplot.savefig('ny{}.png'.format(i))
 
 
 def get_data_frame():
