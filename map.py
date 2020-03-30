@@ -16,6 +16,9 @@ def set_proj_lib_env_variable():
     https://stackoverflow.com/questions/52295117/basemap-import-error-in-pycharm-keyerror-proj-lib
     https://github.com/matplotlib/basemap/issues/419
     """
+    if os.name == 'posix':
+        # This hack isn't required in Linux
+        return
     pkgs_dir = os.path.normpath(os.path.join(os.path.dirname(sys.executable), os.pardir, os.pardir, 'pkgs'))
     for entry in os.listdir(pkgs_dir):
         if not entry.startswith('proj4'):
