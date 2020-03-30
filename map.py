@@ -142,8 +142,10 @@ def create_gif():
         frames.append(new_frame)
 
     # Save into a GIF file that loops forever
+    gif_file_name = 'png_to_gif.gif'
+    LOGGER.info('Creating GIF: %s', gif_file_name)
     frames[0].save(
-        'png_to_gif.gif', format='GIF', append_images=frames[1:],
+        gif_file_name, format='GIF', append_images=frames[1:],
         save_all=True, duration=300, loop=0
     )
 
