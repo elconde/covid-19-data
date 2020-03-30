@@ -13,6 +13,7 @@ def main():
     pivot_table = data_frame_ny.pivot_table(
         values='cases', index='date', columns=['county'], aggfunc=sum
     )
+    print(pivot_table.iloc[-1].sort_values())
     pivot_table.plot(subplots=True, layout=(8, 7), logy=True)
     matplotlib.pyplot.show()
 
