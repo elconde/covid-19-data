@@ -52,8 +52,8 @@ import mpl_toolkits.basemap
 
 START_DATE = datetime.date(2020, 3, 1)
 CENTER = [39.828175, -98.5795]
-WIDTH = 2e6
-HEIGHT = 2e6
+WIDTH = 6.5e6
+HEIGHT = 4e6
 CSV_FILE_NAME = os.path.join(os.path.dirname(__file__), 'us-counties.csv')
 
 
@@ -84,11 +84,6 @@ def draw_map():
     base_map = mpl_toolkits.basemap.Basemap(
         lat_0=CENTER[0], lon_0=CENTER[1], width=WIDTH,
         height=HEIGHT, projection='tmerc'
-    )
-    base_map.readshapefile(
-        'cb_2018/cb_2018_us_county_500k', 'states', drawbounds=True,
-        linewidth=0.45,
-        color='gray'
     )
     base_map.readshapefile(
         'cb_2018/cb_2018_us_state_500k', 'states', drawbounds=True,
