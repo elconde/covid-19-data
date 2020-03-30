@@ -28,10 +28,12 @@ def get_number_of_cases(fips, data_frame, date):
         data_frame_fips = data_frame[data_frame['county'] == 'New York City']
     else:
         data_frame_fips = data_frame[data_frame['fips'] == fips]
-    data_frame_fips_date = data_frame_fips[data_frame_fips['date'] == date]
+    data_frame_fips_date = data_frame_fips[
+        data_frame_fips['date'] == date.strftime('%Y-%m-%d')
+    ]
     if data_frame_fips_date.empty:
         return 0
-    return data_frame_fips_date.loc[0, 'cases']
+    return data_frame_fips_date['cases'].values[0]
 
 
 def draw_map():
