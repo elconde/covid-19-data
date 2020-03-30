@@ -66,16 +66,18 @@ def draw_map():
             lons.append(float(coord['lon']))
             lats.append(float(coord['lat']))
             fips = int(coord['fips'])
+            date = START_DATE + datetime.timedelta(days=i)
             cases.append(
-                get_number_of_cases(
-                    fips, data_frame, START_DATE+datetime.timedelta(days=i)
-                )
+                get_number_of_cases(fips, data_frame, date)
+            )
+            matplotlib.pyplot.text(
+                0, 0, date, horizontalalignment='center', verticalalignment='center',
             )
         base_map.drawmapboundary()
         base_map.scatter(
             lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
         )
-        matplotlib.pyplot.savefig('ny{}.png'.format(i))
+        matplotlib.pyplot.savefig(file_name)
 
 
 def get_data_frame():
