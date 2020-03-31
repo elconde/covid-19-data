@@ -65,8 +65,12 @@ def get_county_coordinates():
 
 def get_number_of_cases(fips, data_frame, date):
     """How many cases are in this county on this date?"""
-    if not fips:
-        # New York
+    if fips in (36085, 36081, 36047, 36005):
+        # Ignore non-Manhattan boroughs
+        return 0
+    if fips == 36061:
+        # New York City data encompasses all five boroughs. We'll put
+        # the marker in Manhattan
         data_frame_fips = data_frame[data_frame['county'] == 'New York City']
     else:
         data_frame_fips = data_frame[data_frame['fips'] == fips]
@@ -106,7 +110,7 @@ def draw_map():
             lats.append(float(coord['Latitude']))
             fips = int(coord['FIPS'])
             cases.append(
-                get_number_of_cases(fips, data_frame, date)
+                get_number_of_cases(fips, data_frame, date)/2
             )
         if old_text:
             old_text.remove()
