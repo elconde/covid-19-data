@@ -12,15 +12,13 @@ import csv
 import matplotlib.pyplot
 import pandas
 import datetime
+import argparse
 
 BUBBLE_SCALE = 100000  # Bubble area is cases per BUBBLE_SCALE
 FIPS_OUTER_BOROUGHS = (36085, 36081, 36047, 36005)
 FIPS_MANHATTAN = 36061
 
 LOGGER = logging.getLogger('map')
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s %(name)s %(message)s"
-)
 START_DATE = datetime.date(2020, 3, 1)
 CENTER = [39.828175, -98.5795]
 WIDTH = 6.5e6
@@ -51,7 +49,7 @@ def set_proj_lib_env_variable():
         if not os.path.isdir(candidate):
             continue
         if os.path.isfile(os.path.join(candidate, 'epsg')):
-            LOGGER.debug('Setting PROJ_LIB to %s', candidate)
+            print('Setting PROJ_LIB to', candidate)
             os.environ['PROJ_LIB'] = candidate
             return
 
@@ -85,7 +83,7 @@ def get_number_of_cases(fips, data_frame, date):
     return data_frame_fips_date['cases'].values[0]
 
 
-def draw_map():
+def draw_map(args):
     """Draw the map!"""
     # Define the projection, scale, the corners of the map, and the resolution.
     base_map = mpl_toolkits.basemap.Basemap(
@@ -116,9 +114,11 @@ def draw_map():
                 continue
             lons.append(float(coord['Longitude']))
             lats.append(float(coord['Latitude']))
-            cases.append(
-                number_of_cases / get_population(coord, coords) * BUBBLE_SCALE
-            )
+            if args.scale_by_population:
+                scalar = BUBBLE_SCALE / get_population(coord, coords)
+            else:
+                scalar = 0.25
+            cases.append(number_of_cases * scalar)
         if old_text:
             old_text.remove()
         old_text = matplotlib.pyplot.text(
@@ -179,8 +179,26 @@ def create_gif():
     )
 
 
+def parse_args():
+    """Parse the command line arguments"""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--scale-by-population', action='store_true')
+    parser.add_argument('--verbose', action='store_true')
+    return parser.parse_args()
+
+
+def setup_logger(args):
+    """Set up the logger"""
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format="%(asctime)s %(name)s %(message)s"
+    )
+
+
 def main():
-    draw_map()
+    args = parse_args()
+    setup_logger(args)
+    draw_map(args)
     create_gif()
 
 
