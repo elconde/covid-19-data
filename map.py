@@ -17,6 +17,12 @@ LOGGER = logging.getLogger('map')
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s %(message)s"
 )
+START_DATE = datetime.date(2020, 3, 1)
+CENTER = [39.828175, -98.5795]
+WIDTH = 6.5e6
+HEIGHT = 4e6
+CSV_FILE_NAME = os.path.join(os.path.dirname(__file__), 'us-counties.csv')
+DPI = 300
 
 
 def set_proj_lib_env_variable():
@@ -48,13 +54,6 @@ def set_proj_lib_env_variable():
 
 set_proj_lib_env_variable()
 import mpl_toolkits.basemap
-
-
-START_DATE = datetime.date(2020, 3, 1)
-CENTER = [39.828175, -98.5795]
-WIDTH = 6.5e6
-HEIGHT = 4e6
-CSV_FILE_NAME = os.path.join(os.path.dirname(__file__), 'us-counties.csv')
 
 
 def get_county_coordinates():
@@ -124,7 +123,7 @@ def draw_map():
         old_scatter = base_map.scatter(
             lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
         )
-        matplotlib.pyplot.savefig(file_name, dpi=200)
+        matplotlib.pyplot.savefig(file_name, dpi=DPI)
         date += datetime.timedelta(days=1)
 
 
