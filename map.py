@@ -13,6 +13,10 @@ import matplotlib.pyplot
 import pandas
 import datetime
 
+BUBBLE_SCALE = 100000  # Bubble area is cases per BUBBLE_SCALE
+FIPS_OUTER_BOROUGHS = (36085, 36081, 36047, 36005)
+FIPS_MANHATTAN = 36061
+
 LOGGER = logging.getLogger('map')
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(name)s %(message)s"
@@ -64,10 +68,10 @@ def get_county_coordinates():
 
 def get_number_of_cases(fips, data_frame, date):
     """How many cases are in this county on this date?"""
-    if fips in (36085, 36081, 36047, 36005):
+    if fips in FIPS_OUTER_BOROUGHS:
         # Ignore non-Manhattan boroughs
         return 0
-    if fips == 36061:
+    if fips == FIPS_MANHATTAN:
         # New York City data encompasses all five boroughs. We'll put
         # the marker in Manhattan
         data_frame_fips = data_frame[data_frame['county'] == 'New York City']
@@ -104,12 +108,16 @@ def draw_map():
         cases = []
         file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
-        for coord in get_county_coordinates():
+        coords = get_county_coordinates()
+        for coord in coords:
+            fips = int(coord['FIPS'])
+            number_of_cases = get_number_of_cases(fips, data_frame, date)
+            if not number_of_cases:
+                continue
             lons.append(float(coord['Longitude']))
             lats.append(float(coord['Latitude']))
-            fips = int(coord['FIPS'])
             cases.append(
-                get_number_of_cases(fips, data_frame, date)/2
+                number_of_cases / get_population(coord, coords) * BUBBLE_SCALE
             )
         if old_text:
             old_text.remove()
@@ -125,6 +133,23 @@ def draw_map():
         )
         matplotlib.pyplot.savefig(file_name, dpi=DPI)
         date += datetime.timedelta(days=1)
+
+
+def get_population(coord, coords):
+    """What is the population of this coord?"""
+    if coord['FIPS'] != FIPS_MANHATTAN:
+        return population_as_int(coord)
+    nyc_population = population_as_int(coord)
+    for coord in coords:
+        if coord['FIPS'] not in FIPS_OUTER_BOROUGHS:
+            continue
+        nyc_population += population_as_int(coord)
+    return nyc_population
+
+
+def population_as_int(coord):
+    """What is the population as an int?"""
+    return int(coord['Population (2010)'].replace(',', ''))
 
 
 def get_data_frame():
