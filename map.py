@@ -124,7 +124,7 @@ def draw_map():
         old_scatter = base_map.scatter(
             lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
         )
-        matplotlib.pyplot.savefig(file_name)
+        matplotlib.pyplot.savefig(file_name, dpi=200)
         date += datetime.timedelta(days=1)
 
 
