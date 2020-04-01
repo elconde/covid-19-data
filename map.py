@@ -92,7 +92,7 @@ def draw_map(args):
     )
     base_map.readshapefile(
         'cb_2018/cb_2018_us_state_500k', 'states', drawbounds=True,
-        linewidth=0.9,
+        linewidth=0.2,
         color='gray'
     )
     data_frame = get_data_frame()
@@ -100,13 +100,14 @@ def draw_map(args):
     old_text = None
     max_date = data_frame['date'].max()
     date = START_DATE
+    base_map.drawmapboundary()
+    coords = get_county_coordinates()
     while date <= max_date:
         lons = []
         lats = []
         cases = []
         file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
-        coords = get_county_coordinates()
         for coord in coords:
             fips = int(coord['FIPS'])
             number_of_cases = get_number_of_cases(fips, data_frame, date)
@@ -125,7 +126,6 @@ def draw_map(args):
             0, 0, date, horizontalalignment='center',
             verticalalignment='center'
         )
-        base_map.drawmapboundary()
         if old_scatter:
             old_scatter.remove()
         old_scatter = base_map.scatter(
@@ -175,7 +175,7 @@ def create_gif():
     LOGGER.info('Creating GIF: %s', gif_file_name)
     frames[0].save(
         gif_file_name, format='GIF', append_images=frames[1:],
-        save_all=True, duration=300, loop=0
+        save_all=True, duration=300
     )
 
 
