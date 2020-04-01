@@ -14,6 +14,8 @@ import pandas
 import datetime
 import argparse
 
+ROOT_DIR = os.path.dirname(__file__)
+
 BUBBLE_SCALE = 100000  # Bubble area is cases per BUBBLE_SCALE
 FIPS_OUTER_BOROUGHS = (36085, 36081, 36047, 36005)
 FIPS_MANHATTAN = 36061
@@ -23,7 +25,8 @@ START_DATE = datetime.date(2020, 3, 1)
 CENTER = [39.828175, -98.5795]
 WIDTH = 6.5e6
 HEIGHT = 4e6
-CSV_FILE_NAME = os.path.join(os.path.dirname(__file__), 'us-counties.csv')
+CSV_FILE_NAME = os.path.join(ROOT_DIR, 'us-counties.csv')
+PNG_DIR = os.path.join(ROOT_DIR, 'png')
 DPI = 300
 
 
@@ -102,6 +105,8 @@ def draw_map(args):
     date = START_DATE
     base_map.drawmapboundary()
     coords = get_county_coordinates()
+    for png_file in get_pngs():
+        os.remove(png_file)
     while date <= max_date:
         lons = []
         lats = []
@@ -131,7 +136,7 @@ def draw_map(args):
         old_scatter = base_map.scatter(
             lons, lats, marker='o', color='r', latlon=True, s=cases, alpha=.4,
         )
-        matplotlib.pyplot.savefig(file_name, dpi=DPI)
+        matplotlib.pyplot.savefig(os.path.join(PNG_DIR, file_name), dpi=DPI)
         date += datetime.timedelta(days=1)
 
 
@@ -165,8 +170,7 @@ def create_gif():
     """Convert the PNG files to a GIF"""
     # Create the frames
     frames = []
-    images = sorted(glob.glob("*.png"))
-    for image in images:
+    for image in get_pngs():
         new_frame = Image.open(image)
         frames.append(new_frame)
 
@@ -177,6 +181,14 @@ def create_gif():
         gif_file_name, format='GIF', append_images=frames[1:],
         save_all=True, duration=300
     )
+
+
+def get_pngs():
+    """Return a list of png paths"""
+    return [
+        os.path.join(PNG_DIR, entry) for entry
+        in sorted(os.listdir(PNG_DIR)) if entry.lower().endswith('.png')
+    ]
 
 
 def parse_args():
