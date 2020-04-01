@@ -1,17 +1,19 @@
 """Plot New York City cases"""
 import matplotlib.pyplot
-import pandas
-import os
-
-CSV_FILE_NAME = os.path.join(os.path.dirname(__file__), 'us-counties.csv')
+import math
+import c19
 
 
 def main():
     """View NYTimes Covid-19 data"""
-    data_frame = pandas.read_csv(CSV_FILE_NAME)
-    data_frame_ny = (
-        data_frame[data_frame['county'] == 'New York City'][['date', 'cases']]
-    ).set_index('date')
+    data_frame_ny = c19.get_data_frame_nyc()
+    data_frame_ny['doubling rate (days)'] = math.nan
+    cases = data_frame_ny['cases']
+    for i in range(1, len(data_frame_ny)):
+        denominator = math.log2(cases.iat[i]/cases[i-1])
+        if denominator == 0:
+            continue
+        data_frame_ny['doubling rate (days)'].iat[i] = 1/denominator
     print(data_frame_ny)
     data_frame_ny.plot(logy=True)
     matplotlib.pyplot.show()
