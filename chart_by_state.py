@@ -3,7 +3,7 @@ import matplotlib.pyplot
 import pandas
 import c19
 
-STATES = ['Massachusetts', 'Pennsylvania']
+STATES = ['Massachusetts', 'Pennsylvania', 'New York', 'New Jersey']
 
 
 def get_state_population(statistics, state):
