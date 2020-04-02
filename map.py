@@ -124,7 +124,7 @@ def draw_map(args):
             lons.append(statistic['Longitude'])
             lats.append(statistic['Latitude'])
             if args.scale_by_population:
-                scalar = BUBBLE_SCALE / get_population(statistic, statistics)
+                scalar = BUBBLE_SCALE / get_population(fips, statistics)
             else:
                 scalar = 0.25
             cases.append(number_of_cases * scalar)
@@ -143,13 +143,16 @@ def draw_map(args):
         date += datetime.timedelta(days=1)
 
 
-def get_population(statistic, statistics):
+def get_population(fips, statistics):
     """What is the population of this row? Include the entire dataframe
     in case we need access to other counties"""
-    if statistic['FIPS'] in FIPS_OUTER_BOROUGHS:
-        return 0
-    population = statistic['Population (2010)']
-    if statistic['FIPS'] != FIPS_MANHATTAN:
+    assert fips not in FIPS_OUTER_BOROUGHS, (
+        'Outer boroughs are merged into Manhattan!'
+    )
+    population = (
+        statistics[statistics['FIPS'] == fips]['Population (2010)'].sum()
+    )
+    if fips != FIPS_MANHATTAN:
         return population
     return population + (
         statistics[
