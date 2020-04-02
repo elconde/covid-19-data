@@ -3,6 +3,7 @@ States.
 > conda install --name covid-19-data python=3.7 pandas matplotlib \
   Pillow basemap
 """
+import c19
 import sys
 import logging
 import os
@@ -65,11 +66,6 @@ set_proj_lib_env_variable()
 import mpl_toolkits.basemap
 
 
-def get_county_statistics():
-    """Read the county statistics into a data frame."""
-    return pandas.read_csv('statistics.csv', thousands=',')
-
-
 def get_number_of_cases(fips, data_frame, date):
     """How many cases are in this county on this date?"""
     if fips in FIPS_OUTER_BOROUGHS:
@@ -107,7 +103,7 @@ def draw_map(args):
     max_date = data_frame['date'].max()
     date = START_DATE
     base_map.drawmapboundary()
-    statistics = get_county_statistics()
+    statistics = c19.get_county_statistics()
     for png_file in get_pngs():
         os.remove(png_file)
     while date <= max_date:
