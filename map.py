@@ -7,8 +7,6 @@ import sys
 import logging
 import os
 from PIL import Image
-import glob
-import csv
 import matplotlib.pyplot
 import pandas
 import datetime
@@ -37,34 +35,39 @@ def set_proj_lib_env_variable():
     https://stackoverflow.com/questions/52295117/basemap-import-error-in-pycharm-keyerror-proj-lib
     https://github.com/matplotlib/basemap/issues/419
     """
+    exe_dir = os.path.dirname(sys.executable)
+    proj_lib = ''
     if os.name == 'posix':
-        # This hack isn't required in Linux
-        return
-    pkgs_dir = os.path.normpath(
-        os.path.join(
-            os.path.dirname(sys.executable), os.pardir, os.pardir, 'pkgs'
+        proj_lib = os.path.normpath(
+            os.path.join(exe_dir, os.pardir, 'share', 'proj')
         )
-    )
-    for entry in os.listdir(pkgs_dir):
-        if not entry.startswith('proj4'):
-            continue
-        candidate = os.path.join(pkgs_dir, entry, 'Library', 'share')
-        if not os.path.isdir(candidate):
-            continue
-        if os.path.isfile(os.path.join(candidate, 'epsg')):
-            print('Setting PROJ_LIB to', candidate)
-            os.environ['PROJ_LIB'] = candidate
-            return
+    else:
+        pkgs_dir = os.path.normpath(
+            os.path.join(exe_dir, os.pardir, os.pardir, 'pkgs')
+        )
+        for entry in os.listdir(pkgs_dir):
+            if not entry.startswith('proj4'):
+                continue
+            candidate = os.path.join(pkgs_dir, entry, 'Library', 'share')
+            if not os.path.isdir(candidate):
+                continue
+            if os.path.isfile(os.path.join(candidate, 'epsg')):
+                proj_lib = candidate
+                break
+    if not proj_lib:
+        return
+    print('Setting PROJ_LIB to', proj_lib)
+    os.environ['PROJ_LIB'] = proj_lib
+    return
 
 
 set_proj_lib_env_variable()
 import mpl_toolkits.basemap
 
 
-def get_county_coordinates():
-    """What are the coordinates of the counties?"""
-    with open('coordinates.csv') as coord_file:
-        return [row for row in csv.DictReader(coord_file)]
+def get_county_statistics():
+    """Read the county statistics into a data frame."""
+    return pandas.read_csv('statistics.csv', thousands=',')
 
 
 def get_number_of_cases(fips, data_frame, date):
@@ -104,7 +107,7 @@ def draw_map(args):
     max_date = data_frame['date'].max()
     date = START_DATE
     base_map.drawmapboundary()
-    coords = get_county_coordinates()
+    statistics = get_county_statistics()
     for png_file in get_pngs():
         os.remove(png_file)
     while date <= max_date:
@@ -113,15 +116,15 @@ def draw_map(args):
         cases = []
         file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
-        for coord in coords:
-            fips = int(coord['FIPS'])
+        for index, statistic in statistics.iterrows():
+            fips = int(statistic['FIPS'])
             number_of_cases = get_number_of_cases(fips, data_frame, date)
             if not number_of_cases:
                 continue
-            lons.append(float(coord['Longitude']))
-            lats.append(float(coord['Latitude']))
+            lons.append(statistic['Longitude'])
+            lats.append(statistic['Latitude'])
             if args.scale_by_population:
-                scalar = BUBBLE_SCALE / get_population(coord, coords)
+                scalar = BUBBLE_SCALE / get_population(statistic, statistics)
             else:
                 scalar = 0.25
             cases.append(number_of_cases * scalar)
@@ -140,21 +143,19 @@ def draw_map(args):
         date += datetime.timedelta(days=1)
 
 
-def get_population(coord, coords):
-    """What is the population of this coord?"""
-    if coord['FIPS'] != FIPS_MANHATTAN:
-        return population_as_int(coord)
-    nyc_population = population_as_int(coord)
-    for coord in coords:
-        if coord['FIPS'] not in FIPS_OUTER_BOROUGHS:
-            continue
-        nyc_population += population_as_int(coord)
-    return nyc_population
-
-
-def population_as_int(coord):
-    """What is the population as an int?"""
-    return int(coord['Population (2010)'].replace(',', ''))
+def get_population(statistic, statistics):
+    """What is the population of this row? Include the entire dataframe
+    in case we need access to other counties"""
+    if statistic['FIPS'] in FIPS_OUTER_BOROUGHS:
+        return 0
+    population = statistic['Population (2010)']
+    if statistic['FIPS'] != FIPS_MANHATTAN:
+        return population
+    return population + (
+        statistics[
+            statistics['FIPS'].isin(FIPS_OUTER_BOROUGHS)
+        ]['Population (2010)'].sum()
+    )
 
 
 def get_data_frame():
