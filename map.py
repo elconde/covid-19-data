@@ -16,8 +16,6 @@ import argparse
 ROOT_DIR = os.path.dirname(__file__)
 
 BUBBLE_SCALE = 100000  # Bubble area is cases per BUBBLE_SCALE
-FIPS_OUTER_BOROUGHS = (36085, 36081, 36047, 36005)
-FIPS_MANHATTAN = 36061
 
 LOGGER = logging.getLogger('map')
 START_DATE = datetime.date(2020, 3, 1)
@@ -68,10 +66,10 @@ import mpl_toolkits.basemap
 
 def get_number_of_cases(fips, data_frame, date):
     """How many cases are in this county on this date?"""
-    if fips in FIPS_OUTER_BOROUGHS:
+    if fips in c19.FIPS_OUTER_BOROUGHS:
         # Ignore non-Manhattan boroughs
         return 0
-    if fips == FIPS_MANHATTAN:
+    if fips == c19.FIPS_MANHATTAN:
         # New York City data encompasses all five boroughs. We'll put
         # the marker in Manhattan
         data_frame_fips = data_frame[data_frame['county'] == 'New York City']
@@ -120,7 +118,7 @@ def draw_map(args):
             lons.append(statistic['Longitude'])
             lats.append(statistic['Latitude'])
             if args.scale_by_population:
-                scalar = BUBBLE_SCALE / get_population(fips, statistics)
+                scalar = BUBBLE_SCALE / c19.get_population(fips, statistics)
             else:
                 scalar = 0.25
             cases.append(number_of_cases * scalar)
@@ -137,24 +135,6 @@ def draw_map(args):
         )
         matplotlib.pyplot.savefig(os.path.join(PNG_DIR, file_name), dpi=DPI)
         date += datetime.timedelta(days=1)
-
-
-def get_population(fips, statistics):
-    """What is the population of this row? Include the entire dataframe
-    in case we need access to other counties"""
-    assert fips not in FIPS_OUTER_BOROUGHS, (
-        'Outer boroughs are merged into Manhattan!'
-    )
-    population = (
-        statistics[statistics['FIPS'] == fips]['Population (2010)'].sum()
-    )
-    if fips != FIPS_MANHATTAN:
-        return population
-    return population + (
-        statistics[
-            statistics['FIPS'].isin(FIPS_OUTER_BOROUGHS)
-        ]['Population (2010)'].sum()
-    )
 
 
 def get_data_frame():

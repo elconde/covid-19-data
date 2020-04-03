@@ -29,7 +29,7 @@ def main():
         pivot_table[dr_column_name] = math.nan
         for i in range(AVG_WINDOW, len(pivot_table)):
             cases = pivot_table[(county, state)]
-            denominator = cases.iat[i]/cases.iat[i - AVG_WINDOW]
+            denominator = math.log2(cases.iat[i]/cases.iat[i - AVG_WINDOW])
             if denominator == 0:
                 continue
             pivot_table[(dr_column_name, '')].iat[i] = AVG_WINDOW / denominator
