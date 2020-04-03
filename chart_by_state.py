@@ -26,7 +26,6 @@ def main():
     data_frame = pandas.read_csv(c19.CSV_STATES)
     statistics = c19.get_county_statistics()
     data_frame_chart = data_frame[data_frame['state'].isin(STATES)]
-    print(data_frame_chart)
     pivot_table = data_frame_chart.pivot_table(
         values='cases', index='date', columns=['state'], aggfunc=sum
     )
