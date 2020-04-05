@@ -1,11 +1,10 @@
 """Plot New York City cases"""
 import matplotlib.pyplot
 import math
-import pandas
 import c19
 
 AVG_WINDOW = 7
-SERIES = 'deaths'
+SERIES = 'cases'
 
 
 def main():
