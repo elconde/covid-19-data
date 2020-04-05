@@ -4,7 +4,7 @@ import pandas
 import c19
 
 STATES = ['Massachusetts', 'Pennsylvania', 'New York', 'New Jersey']
-
+MULTIPLIER = 1e6
 
 def get_state_population(statistics, state):
     """Get the population of the state"""
@@ -31,8 +31,8 @@ def main():
     )
     for state in STATES:
         population = get_state_population(statistics, state)
-        pivot_table[state] = pivot_table[state] / population * 1e6
-    print(pivot_table.iloc[-1].sort_values())
+        pivot_table[state] = pivot_table[state] / population * MULTIPLIER
+    print(pivot_table)
     pivot_table.plot(logy=True)
     matplotlib.pyplot.show()
 
