@@ -1,4 +1,3 @@
-import pandas
 import c19
 
 
