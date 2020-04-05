@@ -1,4 +1,4 @@
-"""Plot New York City cases"""
+"""Plot New York  cases"""
 import c19
 
 AVG_WINDOW = 7
