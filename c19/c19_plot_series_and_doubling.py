@@ -2,7 +2,7 @@ import math
 import matplotlib.pyplot
 
 
-def plot_series_and_doubling(data_frame, series_name, avg_window):
+def plot_series_and_doubling(data_frame, series_name, avg_window, logy=True):
     """Plot the series and the doubling rate"""
     assert series_name in ('cases', 'deaths')
     column_name = 'doubling rate ({} day avg.)'.format(avg_window)
@@ -21,7 +21,7 @@ def plot_series_and_doubling(data_frame, series_name, avg_window):
         to_drop = 'cases'
     data_frame.drop(labels=[to_drop], axis=1, inplace=True)
     print(data_frame)
-    data_frame.plot(logy=True)
+    data_frame.plot(logy=logy)
     matplotlib.pyplot.show()
 
 
