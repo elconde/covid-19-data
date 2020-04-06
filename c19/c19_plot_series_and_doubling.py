@@ -11,7 +11,7 @@ def plot_series_and_doubling(data_frame, series_name, avg_window):
     len_ = len(data_frame)
     for i in range(avg_window, len_):
         denominator = math.log2(series.iat[i] / series[i - avg_window])
-        if denominator == 0:
+        if denominator in (0, math.inf):
             continue
         doubling_rate = avg_window / denominator
         data_frame[column_name].iat[i] = doubling_rate
