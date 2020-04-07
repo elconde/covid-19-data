@@ -1,6 +1,14 @@
 import c19
 
 
+def get_state_population(statistics, state_name):
+    """What is the population of this state"""
+    return (
+        statistics[statistics['State'] == c19.parse_state_name(state_name)]
+        ['Population (2010)'].sum()
+    )
+
+
 def get_population(fips, statistics):
     """What is the population of this row? Include the entire dataframe
     in case we need access to other counties"""
@@ -19,4 +27,4 @@ def get_population(fips, statistics):
     )
 
 
-__all__ = ['get_population']
+__all__ = ['get_population', 'get_state_population']

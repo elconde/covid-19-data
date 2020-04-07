@@ -51,6 +51,25 @@ POSTAL_CODES = {
     'West Virginia': 'WV',
     'Wisconsin': 'WI',
     'Wyoming': 'WY',
+    'District of Columbia': 'DC',
+    'Guam': 'GU',
+    'Northern Mariana Islands': 'MP',
+    'Puerto Rico': 'PR',
+    'Virgin Islands': 'VI'
 }
 
-__all__ = ['POSTAL_CODES']
+
+def parse_state_name(state_name):
+    """Parse the state name and return the postal abbreviation."""
+    if len(state_name) == 2:
+        assert state_name in POSTAL_CODES.values(), (
+            state_name + ': No such state!'
+        )
+        state_abbr = state_name
+    else:
+        state_abbr = POSTAL_CODES.get(state_name, '')
+        assert state_abbr, state_name + ': No such state!'
+    return state_abbr
+
+
+__all__ = ['POSTAL_CODES', 'parse_state_name']

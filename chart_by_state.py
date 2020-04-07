@@ -6,14 +6,10 @@ import c19
 STATES = ['Massachusetts', 'Pennsylvania', 'New York', 'New Jersey']
 MULTIPLIER = 1e6
 
+
 def get_state_population(statistics, state):
     """Get the population of the state"""
-    if len(state) == 2:
-        assert state in c19.POSTAL_CODES.values(), state+': No such state!'
-        state_abbr = state
-    else:
-        state_abbr = c19.POSTAL_CODES.get(state, '')
-        assert state_abbr, state+': No such state!'
+    state_abbr = c19.parse_state_name(state)
     return (
         statistics[
             statistics['State'] == state_abbr
