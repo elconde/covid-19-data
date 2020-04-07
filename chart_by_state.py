@@ -14,7 +14,7 @@ def main():
     data_frame_chart = data_frame[data_frame['state'].isin(STATES)]
     pivot_table = data_frame_chart.pivot_table(
         values='cases', index='date', columns=['state'], aggfunc=sum
-    )
+    ).dropna()
     for state in STATES:
         population = c19.get_state_population(statistics, state)
         pivot_table[state] = pivot_table[state] / population * MULTIPLIER
