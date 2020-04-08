@@ -22,7 +22,7 @@ def main():
     max_date = pivot_table.index.max()
     top_n_counties = pivot_table.loc[max_date].nlargest(N).index.values
     pivot_table_top = pivot_table[top_n_counties].dropna(how='any')
-    print(pivot_table_top)
+    print(pivot_table_top.iloc[-1])
     pivot_table_top.plot(logy=True)
     matplotlib.pyplot.show()
 
