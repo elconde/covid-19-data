@@ -118,7 +118,7 @@ def draw_map(args):
             lons.append(statistic['Longitude'])
             lats.append(statistic['Latitude'])
             if args.scale_by_population:
-                scalar = BUBBLE_SCALE / c19.get_population(fips, statistics)
+                scalar = BUBBLE_SCALE / c19.get_county_population(fips, statistics)
             else:
                 scalar = 0.10
             cases.append(number_of_cases * scalar)

@@ -3,11 +3,11 @@ import matplotlib.pyplot
 import c19
 
 N = 5
-SCALE_BY_POPULATION = True
+SCALE_BY_POPULATION = False
 
 
 def main():
-    """View NYTimes Covid-19 data"""
+    """Plot the top n counties"""
     data_frame = c19.get_data_frame_counties()
     pivot_table = data_frame.pivot_table(
         values='cases', index='date', columns=('state', 'county', 'fips')
@@ -15,9 +15,7 @@ def main():
     if SCALE_BY_POPULATION:
         stats = c19.get_county_statistics()
         for state, county, fips in pivot_table:
-            if fips in c19.FIPS_OUTER_BOROUGHS:
-                continue
-            population = c19.get_population(fips, stats)
+            population = c19.get_county_population(stats, fips)
             pivot_table[(state, county, fips)] = (
                 pivot_table[(state, county, fips)] / population * 1e6
             )
