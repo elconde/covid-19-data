@@ -3,7 +3,7 @@ import matplotlib.pyplot
 import c19
 
 N = 5
-SCALE_BY_POPULATION = False
+SCALE_BY_POPULATION = True
 
 
 def main():
@@ -22,6 +22,10 @@ def main():
     max_date = pivot_table.index.max()
     top_n_counties = pivot_table.loc[max_date].nlargest(N).index.values
     pivot_table_top = pivot_table[top_n_counties].dropna(how='any')
+    pivot_table_top.columns = [
+        '{}, {}'.format(county, state)
+        for state, county, fips in pivot_table_top
+    ]
     print(pivot_table_top.iloc[-1])
     pivot_table_top.plot(logy=True)
     matplotlib.pyplot.show()
