@@ -12,6 +12,7 @@ import matplotlib.pyplot
 import pandas
 import datetime
 import argparse
+import math
 
 ROOT_DIR = os.path.dirname(__file__)
 
@@ -66,21 +67,13 @@ import mpl_toolkits.basemap
 
 def get_number_of_cases(fips, data_frame, date):
     """How many cases are in this county on this date?"""
-    if fips in c19.FIPS_OUTER_BOROUGHS:
-        # Ignore non-Manhattan boroughs
-        return 0
-    if fips == c19.FIPS_MANHATTAN:
-        # New York City data encompasses all five boroughs. We'll put
-        # the marker in Manhattan
-        data_frame_fips = data_frame[data_frame['county'] == 'New York City']
-    else:
-        data_frame_fips = data_frame[data_frame['fips'] == fips]
-    data_frame_fips_date = data_frame_fips[
-        data_frame_fips['date'] == date.strftime('%Y-%m-%d')
+    data_frame_result = data_frame[
+        (data_frame['fips'] == fips) &
+        (data_frame['date'] == date.strftime('%Y-%m-%d'))
     ]
-    if data_frame_fips_date.empty:
+    if data_frame_result.empty:
         return 0
-    return data_frame_fips_date['cases'].values[0]
+    return data_frame_result['cases'].values[0]
 
 
 def draw_map(args):
@@ -111,7 +104,10 @@ def draw_map(args):
         file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
         for index, statistic in statistics.iterrows():
-            fips = int(statistic['FIPS'])
+            fips = statistic['FIPS']
+            if math.isnan(fips):
+                continue
+            fips = int(fips)
             number_of_cases = get_number_of_cases(fips, data_frame, date)
             if not number_of_cases:
                 continue
