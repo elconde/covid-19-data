@@ -33,7 +33,7 @@ def main():
             if denominator == 0:
                 continue
             pivot_table[(dr_column_name, '')].iat[i] = AVG_WINDOW / denominator
-    pivot_table_plot = pivot_table[dr_column_names]
+    pivot_table_plot = pivot_table[dr_column_names].dropna()
     print(pivot_table_plot)
     pivot_table_plot.plot(logy=False)
     matplotlib.pyplot.show()
