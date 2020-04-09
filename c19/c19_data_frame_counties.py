@@ -11,7 +11,6 @@ def get_data_frame_counties():
     return data_frame
 
 
-
 def get_data_frame_county(county_name, state_name):
     counties = get_data_frame_counties()
     return counties[
