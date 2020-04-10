@@ -55,7 +55,8 @@ POSTAL_CODES = {
     'Guam': 'GU',
     'Northern Mariana Islands': 'MP',
     'Puerto Rico': 'PR',
-    'Virgin Islands': 'VI'
+    'Virgin Islands': 'VI',
+    'American Samoa': 'AS'
 }
 
 
