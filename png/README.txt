@@ -1,0 +1,1 @@
+When generating the animated map, the individual slides go here.
