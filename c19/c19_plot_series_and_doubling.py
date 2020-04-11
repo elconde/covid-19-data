@@ -4,9 +4,11 @@ import matplotlib.pyplot
 
 def plot_series_and_doubling(data_frame, series_name, avg_window, logy=True):
     """Plot the series and the doubling rate"""
-    assert series_name in ('cases', 'deaths')
+    assert series_name in ('cases', 'deaths', 'diff')
     column_name = 'doubling rate ({} day avg.)'.format(avg_window)
     data_frame[column_name] = math.nan
+    if series_name == 'diff':
+        data_frame['diff'] = data_frame['cases'] - data_frame['deaths']
     series = data_frame[series_name]
     len_ = len(data_frame)
     for i in range(avg_window, len_):
@@ -15,11 +17,10 @@ def plot_series_and_doubling(data_frame, series_name, avg_window, logy=True):
             continue
         doubling_rate = avg_window / denominator
         data_frame[column_name].iat[i] = doubling_rate
-    if series_name == 'cases':
-        to_drop = 'deaths'
-    else:
-        to_drop = 'cases'
-    data_frame.drop(labels=[to_drop], axis=1, inplace=True)
+    print(data_frame)
+    to_drop = ['cases', 'deaths', 'diff']
+    to_drop.remove(series_name)
+    data_frame.drop(labels=to_drop, axis=1, inplace=True)
     print(data_frame)
     data_frame.plot(logy=logy)
     matplotlib.pyplot.show()

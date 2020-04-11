@@ -2,7 +2,7 @@
 import matplotlib.pyplot
 import c19
 
-N = 5
+N = 50
 SCALE_BY_POPULATION = True
 
 
@@ -23,11 +23,9 @@ def main():
             pivot_table[column] = (
                 pivot_table[column] / population * ny_population
             )
-    max_date = pivot_table.index.max()
-    top_n_states = pivot_table.loc[max_date].nlargest(N).index.values
-    pivot_table_top = pivot_table[top_n_states].dropna(how='any')
-    print(pivot_table_top)
-    pivot_table_top.plot(logy=True)
+    pivot_table.plot(
+        logy=True, subplots=True, layout=(8, 7), ylim=(1, 160000)
+    )
     matplotlib.pyplot.show()
 
 
