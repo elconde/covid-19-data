@@ -17,7 +17,7 @@ def main():
         for state, county, fips in pivot_table:
             population = c19.get_county_population(stats, fips)
             pivot_table[(state, county, fips)] = (
-                pivot_table[(state, county, fips)] / population * 1e6
+                pivot_table[(state, county, fips)] / population * 1000
             )
     max_date = pivot_table.index.max()
     top_n_counties = pivot_table.loc[max_date].nlargest(N).index.values
