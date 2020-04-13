@@ -2,7 +2,7 @@
 import matplotlib.pyplot
 import c19
 
-N = 50
+N = 5
 SCALE_BY_POPULATION = True
 
 
@@ -15,6 +15,7 @@ def main():
     if SCALE_BY_POPULATION:
         stats = c19.get_county_statistics()
         ny_population = c19.get_state_population(stats, 'New York')
+        print('NY population: ', ny_population)
         for column in pivot_table:
             if column == 'New York':
                 population = ny_population
@@ -23,9 +24,11 @@ def main():
             pivot_table[column] = (
                 pivot_table[column] / population * ny_population
             )
-    pivot_table.plot(
-        logy=True, subplots=True, layout=(8, 7), ylim=(1, 160000)
-    )
+    max_date = pivot_table.index.max()
+    top_n_states = pivot_table.loc[max_date].nlargest(N).index.values
+    pivot_table_top = pivot_table[top_n_states].dropna(how='any')
+    print(pivot_table_top)
+    pivot_table_top.plot(logy=True)
     matplotlib.pyplot.show()
 
 
