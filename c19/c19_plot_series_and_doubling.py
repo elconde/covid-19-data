@@ -19,7 +19,6 @@ def plot_series_and_doubling(data_frame, series_name, avg_window, logy=True):
             continue
         doubling_rate = avg_window / denominator
         data_frame[column_name].iat[i] = doubling_rate
-    print(data_frame)
     to_drop.remove(series_name)
     data_frame.drop(labels=to_drop, axis=1, inplace=True)
     print(data_frame)
