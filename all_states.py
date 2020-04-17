@@ -23,7 +23,7 @@ def main():
                 pivot_table[column] / population * ny_population
             )
     pivot_table.plot(
-        logy=True, subplots=True, layout=(8, 8), ylim=(1, 160000)
+        logy=True, subplots=True, layout=(8, 8), ylim=(1, 215000)
     )
     matplotlib.pyplot.show()
 
