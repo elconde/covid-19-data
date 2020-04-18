@@ -1,8 +1,14 @@
 """Generate a line chart of all the states"""
 import matplotlib.pyplot
 import c19
+import argparse
 
-SCALE_BY_POPULATION = True
+
+def parse_args():
+    """Parse the command line arguments"""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--scale-by-population', action='store_true')
+    return parser.parse_args()
 
 
 def main():
@@ -11,7 +17,7 @@ def main():
     pivot_table = data_frame.pivot_table(
         values='cases', index='date', columns='state'
     )
-    if SCALE_BY_POPULATION:
+    if parse_args().scale_by_population:
         stats = c19.get_county_statistics()
         ny_population = c19.get_state_population(stats, 'New York')
         for column in pivot_table:
