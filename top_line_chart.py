@@ -14,15 +14,9 @@ def main():
     )
     if SCALE_BY_POPULATION:
         stats = c19.get_county_statistics()
-        ny_population = c19.get_state_population(stats, 'New York')
-        print('NY population: ', ny_population)
         for column in pivot_table:
-            if column == 'New York':
-                population = ny_population
-            else:
-                population = c19.get_state_population(stats, column)
             pivot_table[column] = (
-                pivot_table[column] / population * ny_population
+                pivot_table[column] / c19.get_state_population(stats, column)
             )
     max_date = pivot_table.index.max()
     top_n_states = pivot_table.loc[max_date].nlargest(N).index.values
