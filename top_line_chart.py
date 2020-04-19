@@ -24,8 +24,7 @@ def get_pivot_table_top_n_states(n, scale_by_population):
         stats = c19.get_county_statistics()
         for column in pivot_table:
             pivot_table[column] = (
-                    pivot_table[column] / c19.get_state_population(stats,
-                                                                   column)
+                pivot_table[column] / c19.get_state_population(stats, column)
             )
     max_date = pivot_table.index.max()
     top_n_states = pivot_table.loc[max_date].nlargest(n).index.values
