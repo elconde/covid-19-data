@@ -13,25 +13,14 @@ def parse_args():
 
 def main():
     """View NYTimes Covid-19 data"""
-    data_frame = c19.get_data_frame_states()
-    pivot_table = data_frame.pivot_table(
-        values='cases', index='date', columns='state'
-    )
-    if parse_args().scale_by_population:
-        stats = c19.get_county_statistics()
-        ny_population = c19.get_state_population(stats, 'New York')
-        for column in pivot_table:
-            if column == 'New York':
-                population = ny_population
-            else:
-                population = c19.get_state_population(stats, column)
-            pivot_table[column] = (
-                pivot_table[column] / population * ny_population
-            )
+    args = parse_args()
+    pivot_table = c19.get_pivot_table_states(args.scale_by_population)
+    latest_row = pivot_table.iloc[-1]
     pivot_table.plot(
         logy=True, subplots=True, layout=(8, 8),
-        ylim=(1, pivot_table.iloc[-1].max())
+        ylim=(latest_row.min(), latest_row.max())
     )
+    print(latest_row)
     matplotlib.pyplot.show()
 
 
