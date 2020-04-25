@@ -52,7 +52,7 @@ def main():
     else:
         data_frame = c19.get_data_frame_county(args.county, args.state)
         print('{}, {}'.format(args.county, args.state))
-    c19.plot_series_and_doubling(data_frame, 'cases', args.window)
+    c19.plot_series_and_doubling(data_frame, args.series, args.window)
 
 
 if __name__ == '__main__':
