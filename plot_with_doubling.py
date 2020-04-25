@@ -15,6 +15,9 @@ def parse_args():
     parser.add_argument('--state', default='New York', help='State')
     parser.add_argument('--window', default=7, help='Avg. Window', type=int)
     parser.add_argument(
+        '--usa', action='store_true', help='Show countrywide statistics'
+    )
+    parser.add_argument(
         '--series', default='cases', choices=['cases', 'deaths'],
         help='Which series to plot'
     )
@@ -40,7 +43,10 @@ def parse_args():
 def main():
     """Plot the cases or deaths of a given county"""
     args = parse_args()
-    if not args.county:
+    if args.usa:
+        data_frame = c19.get_data_frame_usa()
+        print('U.S.A.')
+    elif not args.county:
         data_frame = c19.get_data_frame_state(args.state)
         print(args.state, 'State')
     else:

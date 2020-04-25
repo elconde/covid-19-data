@@ -3,7 +3,7 @@ import matplotlib.pyplot
 import pandas
 import c19
 
-STATES = ['Massachusetts', 'Pennsylvania', 'New York', 'New Jersey']
+STATES = ['Massachusetts', 'Georgia', 'New York', 'New Jersey']
 MULTIPLIER = 1e6
 
 
