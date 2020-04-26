@@ -62,7 +62,7 @@ set_proj_lib_env_variable()
 import mpl_toolkits.basemap
 
 
-def get_number_of_cases(fips, data_frame, date):
+def get_bubble_area(fips, data_frame, date):
     """How many cases are in this county on this date?"""
     data_frame_result = data_frame[
         (data_frame['fips'] == fips) &
@@ -70,7 +70,7 @@ def get_number_of_cases(fips, data_frame, date):
     ]
     if data_frame_result.empty:
         return 0
-    return data_frame_result['cases'].values[0]
+    return data_frame_result['cases'].values[0] / BUBBLE_SCALE
 
 
 def draw_map():
@@ -123,12 +123,12 @@ def get_bubble_data(data_frame, date, statistics):
         if math.isnan(fips):
             continue
         fips = int(fips)
-        number_of_cases = get_number_of_cases(fips, data_frame, date)
+        number_of_cases = get_bubble_area(fips, data_frame, date)
         if not number_of_cases:
             continue
         lons.append(statistic['Longitude'])
         lats.append(statistic['Latitude'])
-        cases.append(number_of_cases / BUBBLE_SCALE)
+        cases.append(number_of_cases)
     return cases, lats, lons
 
 
