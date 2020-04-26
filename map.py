@@ -10,12 +10,10 @@ import os
 from PIL import Image
 import matplotlib.pyplot
 import datetime
-import math
 
 ROOT_DIR = os.path.dirname(__file__)
-
-BUBBLE_SCALE = 100000  # Bubble area is cases per BUBBLE_SCALE
-
+AVG_WINDOW = 7
+BUBBLE_SCALE = 1
 LOGGER = logging.getLogger('map')
 START_DATE = datetime.date(2020, 3, 1)
 CENTER = [39.828175, -98.5795]
@@ -62,15 +60,17 @@ set_proj_lib_env_variable()
 import mpl_toolkits.basemap
 
 
-def get_bubble_area(fips, data_frame, date):
-    """How many cases are in this county on this date?"""
-    data_frame_result = data_frame[
-        (data_frame['fips'] == fips) &
-        (data_frame['date'] == date.strftime('%Y-%m-%d'))
+def get_bubble_area(fips, pivot_table, date):
+    """What should the area of the bubble be?"""
+    cases = pivot_table.loc[fips]
+    current = cases.loc[date.strftime('%Y-%m-%d')]
+    prior = cases.loc[
+        (date - datetime.timedelta(days=AVG_WINDOW)).strftime('%Y-%m-%d')
     ]
-    if data_frame_result.empty:
+    delta = (current-prior)/AVG_WINDOW
+    if delta == 0:
         return 0
-    return data_frame_result['cases'].values[0] / BUBBLE_SCALE
+    return delta * BUBBLE_SCALE
 
 
 def draw_map():
@@ -85,11 +85,14 @@ def draw_map():
         linewidth=0.2,
         color='gray'
     )
-    data_frame = c19.get_data_frame_counties()
+    data_frame_counties = c19.get_data_frame_counties()
+    pivot_table = data_frame_counties.pivot_table(
+        index='fips', values='cases', columns=['date']
+    ).fillna(0)
     old_scatter = None
     old_text = None
-    max_date = data_frame['date'].max()
-    date = START_DATE
+    max_date = data_frame_counties['date'].max()
+    date = START_DATE + datetime.timedelta(days=AVG_WINDOW)
     base_map.drawmapboundary()
     statistics = c19.get_county_statistics()
     for png_file in get_pngs():
@@ -97,7 +100,7 @@ def draw_map():
     while date <= max_date:
         file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
-        cases, lats, lons = get_bubble_data(data_frame, date, statistics)
+        cases, lats, lons = get_bubble_data(pivot_table, date, statistics)
         if old_text:
             old_text.remove()
         old_text = matplotlib.pyplot.text(
@@ -113,22 +116,22 @@ def draw_map():
         date += datetime.timedelta(days=1)
 
 
-def get_bubble_data(data_frame, date, statistics):
+def get_bubble_data(pivot_table, date, statistics):
     """Generate the required bubble data"""
     lons = []
     lats = []
     cases = []
-    for index, statistic in statistics.iterrows():
-        fips = statistic['FIPS']
-        if math.isnan(fips):
+    for fips in pivot_table.index:
+        if fips == 0:
+            # Unknown counties
             continue
-        fips = int(fips)
-        number_of_cases = get_bubble_area(fips, data_frame, date)
-        if not number_of_cases:
+        bubble_area = get_bubble_area(fips, pivot_table, date)
+        if bubble_area == 0:
             continue
-        lons.append(statistic['Longitude'])
-        lats.append(statistic['Latitude'])
-        cases.append(number_of_cases)
+        statistics_fips = statistics[statistics['FIPS'] == fips]
+        lons.append(statistics_fips['Longitude'].values[0])
+        lats.append(statistics_fips['Latitude'].values[0])
+        cases.append(bubble_area)
     return cases, lats, lons
 
 
@@ -160,7 +163,7 @@ def get_pngs():
 def setup_logger():
     """Set up the logger"""
     logging.basicConfig(
-        level=logging.NOTSET, format="%(asctime)s %(name)s %(message)s"
+        level=logging.INFO, format="%(asctime)s %(name)s %(message)s"
     )
 
 

@@ -3,7 +3,9 @@ import pandas
 
 
 def get_data_frame_counties():
-    data_frame = pandas.read_csv(c19.CSV_COUNTIES, parse_dates=[0])
+    data_frame = pandas.read_csv(
+        c19.CSV_COUNTIES, parse_dates=[0]
+    ).fillna({'fips': 0}).astype({'fips': int})
     nyc_loc = (
         data_frame[(data_frame['county'] == 'New York City')].index.tolist()
     )

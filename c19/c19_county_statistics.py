@@ -9,7 +9,9 @@ NYC_BOROUGHS = NYC_OUTER_BOROUGHS+['New York']
 def get_county_statistics():
     """Read the county statistics into a data frame. Merge all NYC
     boroughs into one"""
-    data_frame = pandas.read_csv(c19.CSV_STATISTICS, thousands=',')
+    data_frame = pandas.read_csv(
+        c19.CSV_STATISTICS, thousands=','
+    ).fillna({'FIPS': 0}).astype({'FIPS': int})
     data_frame['County'].replace(r' \[.*', '', inplace=True, regex=True)
     data_frame_nyc = data_frame[
         (data_frame['State'] == 'NY') & (
