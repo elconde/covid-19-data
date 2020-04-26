@@ -95,22 +95,9 @@ def draw_map():
     for png_file in get_pngs():
         os.remove(png_file)
     while date <= max_date:
-        lons = []
-        lats = []
-        cases = []
         file_name = 'covid-19-data-{}.png'.format(date.strftime('%Y%m%d'))
         LOGGER.info('Generating map %s', file_name)
-        for index, statistic in statistics.iterrows():
-            fips = statistic['FIPS']
-            if math.isnan(fips):
-                continue
-            fips = int(fips)
-            number_of_cases = get_number_of_cases(fips, data_frame, date)
-            if not number_of_cases:
-                continue
-            lons.append(statistic['Longitude'])
-            lats.append(statistic['Latitude'])
-            cases.append(number_of_cases / BUBBLE_SCALE)
+        cases, lats, lons = get_bubble_data(data_frame, date, statistics)
         if old_text:
             old_text.remove()
         old_text = matplotlib.pyplot.text(
@@ -124,6 +111,25 @@ def draw_map():
         )
         matplotlib.pyplot.savefig(os.path.join(PNG_DIR, file_name), dpi=DPI)
         date += datetime.timedelta(days=1)
+
+
+def get_bubble_data(data_frame, date, statistics):
+    """Generate the required bubble data"""
+    lons = []
+    lats = []
+    cases = []
+    for index, statistic in statistics.iterrows():
+        fips = statistic['FIPS']
+        if math.isnan(fips):
+            continue
+        fips = int(fips)
+        number_of_cases = get_number_of_cases(fips, data_frame, date)
+        if not number_of_cases:
+            continue
+        lons.append(statistic['Longitude'])
+        lats.append(statistic['Latitude'])
+        cases.append(number_of_cases / BUBBLE_SCALE)
+    return cases, lats, lons
 
 
 def create_gif():
