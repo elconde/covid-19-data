@@ -7,3 +7,4 @@ from .c19_data_frame_state import *
 from .c19_plot_series_and_doubling import *
 from .c19_pivot_table import *
 from .c19_data_frame_usa import *
+from .c19_argparse import *
