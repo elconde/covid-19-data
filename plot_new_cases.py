@@ -7,9 +7,10 @@ def main():
     """Plot new cases or deaths"""
     args = c19.parse_args()
     data_frame = args.data_frame
-    column_name = 'new cases ({} day avg.)'.format(args.window)
+    series = args.series
+    column_name = 'new {} ({} day avg.)'.format(series, args.window)
     data_frame[column_name] = (
-        data_frame['cases'] - data_frame['cases'].shift(args.window)
+        data_frame[series] - data_frame[series].shift(args.window)
     ) / args.window
     data_frame[column_name].dropna(inplace=True)
     print(data_frame[column_name])
