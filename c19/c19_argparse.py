@@ -6,7 +6,7 @@ import ast
 import inspect
 
 
-def parse_args():
+def parse_args(argv=sys.argv[1:]):
     """Parse the command line arguments"""
     parser = argparse.ArgumentParser(
         description=get_description(),
@@ -23,7 +23,6 @@ def parse_args():
         '--series', default='cases', choices=['cases', 'deaths'],
         help='Which series to plot'
     )
-    argv = sys.argv[1:]
     state_in_argv = False
     county_in_argv = False
     for arg in argv:
@@ -33,7 +32,7 @@ def parse_args():
             county_in_argv = True
         if state_in_argv and county_in_argv:
             break
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if state_in_argv and not county_in_argv:
         args.county = ''
     if not state_in_argv and county_in_argv:
