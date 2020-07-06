@@ -23,6 +23,9 @@ def parse_args(argv=sys.argv[1:]):
         '--series', default='cases', choices=['cases', 'deaths'],
         help='Which series to plot'
     )
+    parser.add_argument(
+        '--scale', action='store_true', help='Scale by population'
+    )
     state_in_argv = False
     county_in_argv = False
     for arg in argv:
@@ -39,11 +42,11 @@ def parse_args(argv=sys.argv[1:]):
         print('--state is mandatory when --county is supplied!')
         sys.exit(1)
     if args.usa:
-        args.data_frame = c19.get_data_frame_usa()
+        args.data_frame = c19.get_data_frame_usa(args.scale)
     elif not args.county:
-        args.data_frame = c19.get_data_frame_state(args.state)
+        args.data_frame = c19.get_data_frame_state(args.state, args.scale)
     else:
-        args.data_frame = c19.get_data_frame_county(args.county, args.state)
+        args.data_frame = c19.get_data_frame_county(args.county, args.state, args.scale)
     return args
 
 

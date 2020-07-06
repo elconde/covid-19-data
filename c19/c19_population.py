@@ -9,10 +9,13 @@ def get_state_population(statistics, state_name):
     )
 
 
-def get_county_population(statistics, fips):
+def get_county_population(statistics, state_name, county_name):
     """What is the population of this county?"""
     return (
-        statistics[(statistics['FIPS'] == fips)]['Population (2010)'].sum()
+        statistics[
+            (statistics['State'] == c19.parse_state_name(state_name)) &
+            (statistics['County'] == county_name)
+        ]['Population (2010)'].sum()
     )
 
 
