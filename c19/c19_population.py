@@ -1,6 +1,10 @@
 import c19
 
 
+def get_usa_population(statistics):
+    """USA population"""
+    return statistics['Population (2010)'].sum()
+
 def get_state_population(statistics, state_name):
     """What is the population of this state"""
     return (
@@ -19,4 +23,6 @@ def get_county_population(statistics, state_name, county_name):
     )
 
 
-__all__ = ['get_county_population', 'get_state_population']
+__all__ = [
+    'get_county_population', 'get_state_population', 'get_usa_population'
+]

@@ -129,8 +129,14 @@ def get_bubble_data(pivot_table, date, statistics):
         if bubble_area == 0:
             continue
         statistics_fips = statistics[statistics['FIPS'] == fips]
-        lons.append(statistics_fips['Longitude'].values[0])
-        lats.append(statistics_fips['Latitude'].values[0])
+        longitude_values = statistics_fips['Longitude'].values
+        latitude_values = statistics_fips['Latitude'].values
+        if not (longitude_values and latitude_values):
+            # Unknown coordinates
+            LOGGER.warning('FIPS %s: Missing coordinates!', fips)
+            continue
+        lons.append(longitude_values[0])
+        lats.append(latitude_values[0])
         cases.append(bubble_area)
     return cases, lats, lons
 
