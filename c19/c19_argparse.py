@@ -44,7 +44,7 @@ def parse_args(argv=sys.argv[1:]):
     if args.usa:
         args.data_frame = c19.get_data_frame_usa(args.scale)
     elif not args.county:
-        args.data_frame = c19.get_data_frame_state(args.state, args.scale)
+        args.data_frame = c19.get_data_frame_state(args.state)
     else:
         args.data_frame = c19.get_data_frame_county(args.county, args.state, args.scale)
     return args
