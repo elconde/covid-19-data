@@ -22,4 +22,4 @@ conda activate covid-19-data
 # Animated Map
 In order to show the animated map of U.S. county cases follow the instructions in the cb_2018 folder.
 
-[png_to_gif.gif]
+![png_to_gif.gif](png_to_gif.gif)
